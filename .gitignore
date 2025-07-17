@@ -1,0 +1,12 @@
+# Root .gitignore
+.env
+*.pyc
+__pycache__/
+*.log
+*.sqlite3
+
+# Exclude venv if it's in root
+venv/
+
+# node_modules if your frontend has it in root
+node_modules/
