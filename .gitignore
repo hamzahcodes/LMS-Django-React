@@ -10,3 +10,5 @@ venv/
 
 # node_modules if your frontend has it in root
 node_modules/
+
+*.ipynb
