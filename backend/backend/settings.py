@@ -14,12 +14,17 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from environ import Env
-env = Env()
-env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+####### ENVIRONMENT VARIABLES SETUP ########
+
+env = Env(
+    BREVO_API_KEY=(str, ''),
+    FROM_EMAIL=(str, '')
+)
+env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -52,7 +57,9 @@ INSTALLED_APPS = [
     # Third Party Apps
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-    'corsheaders'
+    'corsheaders',
+    'anymail',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -153,7 +160,12 @@ JAZZMIN_SETTINGS = {
     'welcome_sign': 'Welcome to LMS'
 }
 
+####### CORS CONFIGURATIONS #########
+
 CORS_ALLOW_ALL_ORIGINS: True
+
+
+####### JWT CONFIGURATIONS #########
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
@@ -193,4 +205,17 @@ SIMPLE_JWT = {
     # "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
     # "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     # "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+
+
+######### EMAIL CONFIGURATION ##########
+
+BREVO_API_KEY = env('BREVO_API_KEY')
+FROM_EMAIL = env('FROM_EMAIL')
+
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+DEFAULT_FROM_EMAIL = FROM_EMAIL
+
+ANYMAIL = {
+    "BREVO_API_KEY": BREVO_API_KEY,
 }
