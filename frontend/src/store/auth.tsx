@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { mountStoreDevtool } from "simple-zustand-devtools";
 
-type AllUserData = {
+export type AllUserData = {
     user_id: string;
     username?: string;
 }
@@ -13,7 +13,7 @@ type AuthStore = {
         user_id: string | null;
         username: string | null;
     },
-    setUser: (user: AllUserData) => void,
+    setUser: (user: AllUserData | null) => void,
     setLoading: (loading: boolean) => void,
     isLoggedIn: () => boolean
 }
