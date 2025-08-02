@@ -1,7 +1,11 @@
+import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 
-export default function PrivateRoute({ children }) {
+type PrivateProps = {
+    children: ReactNode
+}
+export default function PrivateRoute({ children }: PrivateProps) {
     const isLoggedIn = useAuthStore.getState().isLoggedIn()
 
     return isLoggedIn ? <>{children} </> : <Navigate to={'/login'} />

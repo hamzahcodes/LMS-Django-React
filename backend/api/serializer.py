@@ -35,6 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             full_name = validated_data['full_name'],
             email = validated_data['email']
         )
+        print(user)
         email_username = user.email.split('@')[0]
         user.username = email_username
         user.set_password(validated_data['password'])
