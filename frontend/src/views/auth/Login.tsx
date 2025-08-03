@@ -114,6 +114,7 @@ export default function Login() {
                         {isLoading ? "Submitting..." : "Login"}
                     </button>
 
+                    <p className="text-center"><Link to={'/forgot-password'} className="text-blue-500">Forgot Password</Link></p>
                     <p className="text-center">Don't have an account? <Link to={'/register'} className="text-blue-500">Register</Link></p>
                 </form>
             </div>

@@ -32,41 +32,40 @@ class PasswordResetEmailVerifyAPIView(generics.RetrieveAPIView):
     permission_classes = [ AllowAny ]
     serializer_class = api_serializer.UserSerializer
 
-    def get_object(self):   
-       email = self.kwargs['email']
+    def get_object(self):
+        email = self.kwargs['email']
+        user = User.objects.filter(email=email).first()
 
-       user = User.objects.filter(email=email).first()
+        if user:
+            uuidb64 = user.pk
 
-       if user:
-        uuidb64 = user.pk
+            refresh = RefreshToken.for_user(user)
+            refresh_token = str(refresh.access_token)
 
-        refresh = RefreshToken.for_user(user)
-        refresh_token = str(refresh.access_token)
+            user.refresh_token = refresh_token
+            user.otp = generate_random_otp()
+            user.save()
 
-        user.refresh_token = refresh_token
-        user.otp = generate_random_otp()
-        user.save()
+            link = f'http://localhost:5173/create-new-password/?otp={user.otp}&uuidb64={uuidb64}&refresh_token={refresh_token}'
 
-        link = f'http://localhost:5173/create-new-password/?otp={user.otp}&uuidb64={uuidb64}&refresh_token={refresh_token}'
+            email_context = {
+                "link": link,
+                "username": user.username
+            }
+            subject = "[Edufy] Password Reset E-mail"
+            text_body = render_to_string('email/password_reset.txt', email_context)
+            html_body = render_to_string('email/password_reset.html', email_context)
 
-        email_context = {
-            "link": link,
-            "username": user.username
-        }
-        subject = "Password Reset Email"
-        text_body = render_to_string('email/password_reset.txt', email_context)
-        html_body = render_to_string('email/password_reset.html', email_context)
-
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            from_email=settings.FROM_EMAIL,
-            to=[user.email],
-            body=text_body,
-        )
-        msg.attach_alternative(html_body, 'text/html')
-        msg.send()
-        # print('link:', link)
-        return user
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                from_email=settings.FROM_EMAIL,
+                to=[user.email],
+                body=text_body,
+            )
+            msg.attach_alternative(html_body, 'text/html')
+            msg.send()
+            # print('link:', link)
+            return user
        
 
 class PasswordChangeAPIView(generics.CreateAPIView):
