@@ -1,5 +1,5 @@
 from django.db import models
-from usersauth.models import User
+from usersauth.models import User, Profile
 
 from django.utils.text import slugify
 from shortuuid.django_fields import ShortUUIDField
@@ -51,14 +51,14 @@ class Teacher(models.Model):
     Returns all courses created by a particular teacher
     '''
     def courses(self):
-        return Courses.objects.filter(teacher=self)
+        return Course.objects.filter(teacher=self)
     
 
     '''
         Returns count of reviews made on courses by this teacher
     '''
     def review(self):
-        return Courses.objects.filter(teacher=self).count()
+        return Course.objects.filter(teacher=self).count()
     
 
 class Category(models.Model):
@@ -78,7 +78,7 @@ class Category(models.Model):
         Returns count of courses in this category
     '''
     def course_count(self):
-        return Courses.objects.filter(category=self).count()
+        return Course.objects.filter(category=self).count()
     
     def save(self, *args, **kwargs):
         if self.slug == '' or self.slug == None:
@@ -165,4 +165,56 @@ class Lecture(models.Model):
     def __str__(self):
         return self.section + self.title
 
+
+class QuestionAnswer(models.Model):
+    course = models.ForeignKey(to=Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    title = models.CharField(max_length=1000, null=True, blank=True)
+    qa_id = ShortUUIDField(unique=True, max_length=20, alphabet='abcdefgh12345')
+    date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.course.title + self.user.full_name
+    
+    class Meta:
+        ordering = ['-date']
+
+    def messages(self):
+        return QuestionAnswerResponse.objects.filter(question=self)
+    
+    def profile(self):
+        return Profile.objects.get(user=self.user)
+    
+
+class QuestionAnswerResponse(models.Model):
+    course = models.ForeignKey(to=Course, on_delete=models.CASCADE)
+    question = models.ForeignKey(to=QuestionAnswer, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True, blank=True)
+    qam_id = ShortUUIDField(unique=True, prefix='qam', alphabet='abcdefgh12345', max_length=20)
+    message = models.CharField(max_length=1000)
+    date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.course.title + '-' + self.user.full_name
+    
+    class Meta:
+        ordering = ['-date']
+    
+    def profile(self):
+        return Profile.objects.get(user=self.user)
+    
+
+class Cart(models.Model):
+    course = models.ForeignKey(to=Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True, blank=True)
+    price = models.DecimalField(max_digits=12, default=0.00, decimal_places=2)
+    tax_fee = models.DecimalField(max_digits=12, default=0.00, decimal_places=2)
+    total = models.DecimalField(max_digits=12, default=0.00, decimal_places=2)
+    country = models.CharField(max_length=100, null=True, blank=True)
+    cart_id = ShortUUIDField(unique=True, prefix='cart', max_length=20, alphabet='abcdefgh12345')
+    date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.cart_id
+    
 
