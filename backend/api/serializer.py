@@ -2,6 +2,7 @@ from usersauth.models import Profile, User
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
+from api import models as api_models
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
@@ -56,3 +57,28 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = '__all__'
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = api_models.Category
+        fields = ['id', 'title', 'image', 'slug', 'course_count']
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = api_models.Course
+        fields = [
+            'category',
+            'teacher',
+            'file',
+            'image',
+            'title',
+            'description',
+            'price',
+            'language',
+            'level',
+            'platform_status',
+            'featured',
+            'course_id',
+            'slug',
+            'date',
+        ]

@@ -10,7 +10,8 @@ from rest_framework.response import Response
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.core.mail import send_mail
+from api import serializer as api_serializers
+from api import models as api_models
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -69,6 +70,7 @@ class PasswordResetEmailVerifyAPIView(generics.RetrieveAPIView):
        
 
 class PasswordChangeAPIView(generics.CreateAPIView):
+
     permission_classes = [ AllowAny ]
     serializer_class = api_serializer.UserSerializer
     
@@ -87,3 +89,15 @@ class PasswordChangeAPIView(generics.CreateAPIView):
         
         else:
             return Response({ 'message': 'user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class CategoryListAPIView(generics.ListAPIView):
+    queryset=api_models.Category.objects.filter(active=True)
+    serializer_class=api_serializers.CategorySerializer
+    permission_classes=[AllowAny]
+
+
+class CourseListAPIView(generics.ListAPIView):
+    queryset=api_models.Course.objects.filter(platform_status='Published')
+    serializer_class=api_serializers.CategorySerializer
+    permission_classes=[AllowAny]
