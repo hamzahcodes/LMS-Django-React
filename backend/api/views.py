@@ -12,6 +12,8 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from api import serializer as api_serializers
 from api import models as api_models
+from rest_framework.permissions import IsAuthenticated
+
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -111,3 +113,11 @@ class CourseDetailAPIView(generics.RetrieveAPIView):
         slug = self.kwargs['slug']
         course = api_models.Course.objects.get(slug=slug, platform_status='Published')
         return course
+    
+class CartView(generics.RetrieveAPIView):
+    serializer_class=api_serializers.CartSerializer
+    permission_classes=[IsAuthenticated]
+
+    def get_object(self):
+        cart, created_at = api_models.Cart.objects.get_or_create(user=self.request.user)
+        return cart

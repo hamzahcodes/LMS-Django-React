@@ -3,7 +3,7 @@ from api import models as api_models
 
 admin.site.register(api_models.Category)
 admin.site.register(api_models.Cart)
-admin.site.register(api_models.CartOrder)
+# admin.site.register(api_models.CartOrder)
 admin.site.register(api_models.CartOrderItem)
 admin.site.register(api_models.Teacher)
 admin.site.register(api_models.Lecture)

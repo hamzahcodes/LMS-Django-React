@@ -161,25 +161,28 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = [ 'category','teacher','file','image','title','description','price','language','level','platform_status','featured','course_id','slug','date','students','curriculum','lectures','average_rating','rating_count','reviews']
 
 
+class CartOrderItemSerializer(serializers.ModelSerializer):
+    
+    course_title = serializers.CharField(source='course.title', read_only=True)
+    course_price = serializers.CharField(source='course.price', read_only=True)
+
+    class Meta:
+        model = api_models.CartOrderItem
+        fields = ['id', 'course', 'course_title', 'course_price', 'added_at']
+
+
 class CartSerializer(serializers.ModelSerializer):
+    cart_items = CartOrderItemSerializer(many=True)
 
     class Meta:
         model = api_models.Cart
-        fields = '__all__'
+        fields = ['id', 'user', 'cart_items', 'total_cart_items']
 
-
-class CartOrderItemSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = api_models.CartOrderItem
-        fields = '__all__'
-
-
-class CartOrderSerializer(serializers.ModelSerializer):
-    order_items = CartOrderItemSerializer(many=True)
-    class Meta:
-        model = api_models.CartOrder
-        fields = '__all__'
+# class CartOrderSerializer(serializers.ModelSerializer):
+    # order_items = CartOrderItemSerializer(many=True)
+    # class Meta:
+        # model = api_models.CartOrder
+        # fields = '__all__'
 
 
 class CertificateSerializer(serializers.ModelSerializer):
