@@ -13,7 +13,7 @@ from django.conf import settings
 from api import serializer as api_serializers
 from api import models as api_models
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.views import APIView
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -121,3 +121,36 @@ class CartView(generics.RetrieveAPIView):
     def get_object(self):
         cart, created_at = api_models.Cart.objects.get_or_create(user=self.request.user)
         return cart
+
+class AddToCartView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = api_serializers.AddToCartSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = api_serializers.AddToCartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        course_id = serializer.validated_data['course_id']
+
+        course_id = serializer.validate_course_id(course_id)
+
+        course = api_models.Course.objects.get(id=course_id)
+
+        cart, _ = api_models.Cart.objects.get_or_create(user=request.user)
+
+        cart_item, created = api_models.CartOrderItem.objects.get_or_create(
+            cart=cart,
+            course=course
+        )
+
+        if not created:
+            return Response({ 'detail':'Course already in cart' }, status=status.HTTP_200_OK)
+        
+        return Response({ 'detail': 'Course added to cart', 'cart': api_serializers.CartSerializer(cart).data}, status=status.HTTP_201_CREATED)
+    
+
+class RemoveFromCartView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = api_serializers.RemoveFromCartSerializer
+
+    

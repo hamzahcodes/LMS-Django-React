@@ -178,11 +178,26 @@ class CartSerializer(serializers.ModelSerializer):
         model = api_models.Cart
         fields = ['id', 'user', 'cart_items', 'total_cart_items']
 
-# class CartOrderSerializer(serializers.ModelSerializer):
-    # order_items = CartOrderItemSerializer(many=True)
-    # class Meta:
-        # model = api_models.CartOrder
-        # fields = '__all__'
+class AddToCartSerializer(serializers.ModelSerializer):
+    course_id = serializers.IntegerField()
+
+    class Meta:
+        model = api_models.CartOrderItem
+        fields = ['course_id']
+
+    def validate_course_id(self, value):
+        try:
+            course = api_models.Course.objects.get(id=value)
+        except api_models.Course.DoesNotExist:
+            raise serializers.ValidationError('Invalid Course ID')
+        return value
+    
+class RemoveFromCartSerializer(serializers.ModelSerializer):
+    course_id = serializers.IntegerField()
+
+    class Meta:
+        model = api_models.CartOrderItem
+        fields = ['course_id']
 
 
 class CertificateSerializer(serializers.ModelSerializer):

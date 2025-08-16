@@ -17,5 +17,7 @@ urlpatterns = [
     path('course/course-list/', api_views.CourseListAPIView.as_view()),
     path('course/course-detail/<slug>', api_views.CourseDetailAPIView.as_view()),
 
-    path('cart/list/', api_views.CartView.as_view())
+    path('cart/list/', api_views.CartView.as_view()),
+    path('cart/add/', api_views.AddToCartView.as_view()),
+    path('cart/remove/<int:course_id>', api_views.RemoveFromCartView.as_view())
 ]

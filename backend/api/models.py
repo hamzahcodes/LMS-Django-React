@@ -245,7 +245,7 @@ class Cart(models.Model):
         return CartOrderItem.objects.filter(cart=self).count()
 
     def __str__(self):
-        return self.cart_id
+        return f"{self.user.full_name}'s Cart"
 
 # class CartOrder(models.Model):
 #     student = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
