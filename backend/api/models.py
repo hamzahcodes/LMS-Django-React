@@ -1,30 +1,9 @@
 from django.db import models
 from usersauth.models import User, Profile
-
 from django.utils.text import slugify
 from shortuuid.django_fields import ShortUUIDField
 from django.utils import timezone
 import uuid
-
-
-LANGUAGE = (
-    ('English', 'English'),
-    ('Roman English', 'Roman English'),
-    ('Hindi', 'Hindi')
-)
-
-LEVEL = (
-    ('Beginner', 'Beginner'),
-    ('Intermediate', 'Intermediate'),
-    ('Advanced', 'Advanced')
-)
-
-PLATFORM_STATUS = (
-    ('Review', 'Review'),
-    ('Disabled', 'Disabled'),
-    ('Rejected', 'Rejected'),
-    ('Published', 'Published')
-)
 
 RATING = (
     (1, '1 Star'),
@@ -51,12 +30,11 @@ PAYMENT_STATUS = (
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    image = models.FileField(upload_to='course-file', blank=True, null=True, default='default.jpg')
+    image = models.FileField(upload_to='/teachers', blank=True, null=True, default='default.jpg')
     full_name = models.CharField(max_length=50)
     bio = models.CharField(max_length=100, blank=True, null=True)
     twitter = models.URLField(null=True, blank=True)
     linkedin = models.URLField(null=True, blank=True)
-    about = models.TextField(null=True, blank=True)
     country = models.CharField(max_length=60, null=True, blank=True)
 
     def __str__(self):
@@ -98,20 +76,34 @@ class Category(models.Model):
         super(Category, self).save(*args, **kwargs)
 
 class Course(models.Model):
+    class CourseLanguage(models.TextChoices):
+        ENGLISH = 'EN', 'English'
+        HINDI = 'HI', 'Hindi'
+
+    class CourseLevel(models.TextChoices):
+        BEGINNER = 'BEG', 'Beginner'
+        INTERMEDIATE = 'INT', 'Intermediate'
+        ADVANCED = 'Adv', 'Advanced'
+
+    class CourseStatus(models.TextChoices):
+        REVIEW = 'Review', 'Review'
+        DISABLED = 'Disabled', 'Disabled'
+        PUBLISHED = 'Published', 'Published'
+        REJECTED = 'Rejected', 'Rejected'
+
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, blank=True, null=True)
-    file = models.FileField(upload_to='course/', blank=True)
     image = models.FileField(upload_to='course-thumbnail/', blank=True)
-    title = models.CharField(max_length=200, null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
     price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, blank=True, null=True)
-    language = models.CharField(choices=LANGUAGE, default='English', max_length=20, blank=True, null=True)
-    level = models.CharField(choices=LEVEL, default='Beginner', null=True, blank=True)
-    platform_status = models.CharField(choices=PLATFORM_STATUS, default='Published', null=True, blank=True)
+    language = models.CharField(max_length=2, choices=CourseLanguage.choices, default=CourseLanguage.ENGLISH)
+    level = models.CharField(max_length=3, choices=CourseLevel.choices, default=CourseLevel.BEGINNER)
+    platform_status = models.CharField(max_length=10, choices=CourseStatus.choices, default=CourseStatus.PUBLISHED)
     featured = models.BooleanField(default=False)
     course_id = ShortUUIDField(unique=True, prefix='course-', max_length=50, alphabet="abcdefgh12345")
     slug = models.SlugField(unique=True, null=True, blank=True)
-    date = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.title
